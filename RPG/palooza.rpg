@@ -152,7 +152,6 @@
                             EndIf;
 
                     EndSl;
-
             EndSl;
         EndDo;
 
@@ -222,7 +221,6 @@
             // Count number of attendees with given email
             // address. Put the count in Nid.
             // -------------------------------------------------------
-            // EmailUC = %XLate(LOWER : UPPER : email);
             exec sql
                 select count(*) into :Nid from rppallab/attendee
                        where email = UCase(:email);
