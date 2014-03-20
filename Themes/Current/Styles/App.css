@@ -1,0 +1,385 @@
+﻿
+/* ==========================================================================
+   App custom styles
+   ========================================================================== */
+
+/* General
+   ========================================================================== */
+body {
+    font-family: Verdana, Geneva, 'DejaVu Sans', sans-serif;
+    line-height: 1.4em;
+}
+
+/* Typography
+   ========================================================================== */
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+/* Icons
+   ========================================================================== */
+svg[id^='DdsList1_Icon'] {
+    width: 16px;
+    height: 16px;
+}
+
+.DdsList-lab div[id^='DdsList1_Icon'] {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+svg[id^='AppBody_DdsList1_icon'] {
+    width: 16px;
+    height: 16px;
+}
+
+/* PanelTitle
+   ========================================================================== */
+.PanelTitle {
+    letter-spacing: 0.12em;
+}
+
+/* Buttons
+   ========================================================================== */
+.NavButton,
+.NavButtonIcon,
+.NavButtonSymbol {
+    font-size: 1em;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    border: none;
+    margin-bottom: 0.2em;
+    padding: 0 15px;
+    height: 2.2em;
+    line-height: normal;
+}
+
+.NavButton {
+    font-weight: normal;
+}
+
+/* DdsBar
+   ========================================================================== */
+.DdsBar {
+    background: #004477;
+}
+
+/* Forms
+   ========================================================================== */
+.pnlFormGroup {
+    margin-bottom: 10px;
+}
+
+.pnlFormGroup .DdsCharField {
+    width: 98%;
+}
+
+.lblFormControl {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.pnlErrorMsg {
+    margin-bottom: 10px;
+}
+
+.pnlErrorMsg .DdsCharField_OutputOnly {
+    color: #990000;
+}
+
+.pnlFormButtons {
+    margin: 20px 0;
+}
+
+.pnlFormButtons .ContinueButton {
+    float: left;
+}
+
+.pnlFormButtons .CancelButton {
+    float: right;
+}
+
+@media screen and (min-width: 480px) {
+    .lblFormControl {
+        display: inline-block;
+        padding-right: 10px;
+        width: 140px;
+    }
+
+    .pnlFormGroup .DdsCharField {
+        width: 257px;
+    }
+}
+
+/* Details
+   ========================================================================== */
+.pnlDetailGroup {
+    margin-bottom: 10px;
+}
+
+.lblDetail {
+    padding: 5px 10px;
+    margin: 20px 0 5px;
+    display: block;
+    color: #fff;
+    background: #777;
+}
+
+.DetailField {
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.4em;
+    font-weight: normal;
+}
+
+.pnlDetailButtons {
+    margin: 20px 0;
+}
+
+.pnlDetailButtons .CancelButton {
+    float: left;
+    clear: left;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlDetailButtons .CancelButton {
+        float: right;
+        clear: none;
+    }
+}
+
+/* HomeMenu
+   ========================================================================== */
+.pnlHomeMenuMain {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+}
+
+.pnlLogo {
+    margin: 5px 0;
+}
+
+.pnlWelcome {
+    margin-bottom: 24px;
+    padding: 24px 15px;
+    border: 1px solid #aaa;
+    background: #eaeaea;
+}
+
+.pnlHomeMenuButtons {
+    margin-bottom: 24px;
+}
+
+.pnlHomeMenuButtons .NavButton {
+    margin-bottom: 10px;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlHomeMenuMain {
+        width: 420px;
+    }
+
+    .pnlWelcome {
+        padding: 24px 35px;
+    }
+    
+    .pnlHomeMenuButtons .NewRegButton {
+        float: left;
+    }
+
+    .pnlHomeMenuButtons .ShowLabsButton {
+        float: right;
+    }
+}
+
+/* Registration
+   ========================================================================== */
+.pnlRegForm {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlRegForm {
+        width: 420px;
+    }
+}
+
+/* Login
+   ========================================================================== */
+.pnlLoginForm {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlLoginForm {
+        width: 420px;
+    }
+}
+
+/* ShowLabs
+   ========================================================================== */
+.pnlShowLabs {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+}
+
+.pnlShowLabsInstructions {
+    margin: 10px 0;
+    font-size: 80%;
+    line-height: 1.5em;
+}
+
+.pnlShowLabsIcons {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 20px 0;
+    padding: 10px;
+    line-height: 16px;
+    border: 1px solid #aaa;
+    background: #eaeaea;
+    font-size: 80%;
+}
+
+.DdsList-lab {
+    position: relative;
+    left: 0%;
+    font-weight: 500;
+    top: 2px;
+    font-size:90%;
+}
+
+.DdsList-lab table {
+    border: 1px solid #aaa;
+    border-collapse: collapse;
+}
+
+.DdsList-lab table tr td {
+    padding: 10px;
+}
+
+.DdsList-lab table tr td span {
+    line-height: 1.2em;
+}
+
+.DdsList-lab table tr td:first-of-type {
+    padding: 20px;
+    vertical-align: middle;
+}
+
+.DdsList-lab table tr:nth-child(odd) {
+    background-color: #eaeaea;
+}
+
+.DdsListDetail-lab {
+    font-weight: normal;
+    font-size: 80%;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlShowLabs {
+        width: 420px;
+    }
+}
+
+/* Detail
+   ========================================================================== */
+.pnlDetail {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlDetail {
+        width: 420px;
+    }
+}
+
+/* EoJ
+   ========================================================================== */
+.pnlEoJ {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    width: 300px;
+}
+
+.pnlEoJThanks {
+    font-size: 1.2em;
+}
+
+.pnlAppInfo {
+    margin: 20px 0;
+    padding: 10px 15px;
+    border: 1px solid #aaa;
+    background: #eaeaea;
+}
+
+@media screen and (min-width: 480px) {
+    .pnlEoJ {
+        width: 420px;
+    }
+}
+
+/* Utilities
+   ========================================================================== */
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+.invisible {
+    visibility: hidden;
+}

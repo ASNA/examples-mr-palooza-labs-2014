@@ -1,0 +1,79 @@
+﻿
+    <mdf:DdsSubfileControl ID="DdsSubfileControl1" runat="server" CssClass="DdsList" EraseFormats="*All" 
+                           Style="position: relative;" ClearRecords="99" SubfilePage="9" SubfileSize="9" Alias="LabsSFLC" 
+                           DisplayFields="!99" DisplayRecords="!99">
+        <mdf:DdsSubfile ID="DdsSubfile1" runat="server" Alias="LabsSFL" CssClass="">
+            <mdf:DdsCharField ID="DdsCharField15" runat="server" CssClass="" Alias="LabName" Length="80"  Usage="OutputOnly" />
+        </mdf:DdsSubfile>
+    </mdf:DdsSubfileControl>
+
+
+
+            BegSr RegLab;            
+            Select; 
+                When LabId = '1';
+                    Attendee.Lab1 = 1;
+                When LabId = '2';
+                    Attendee.Lab2 = 1;
+                When LabId = '3';
+                    Attendee.Lab3 = 1;
+                When LabId = '4';
+                    Attendee.Lab4 = 1;
+                When LabId = '5';
+                    Attendee.Lab5 = 1;
+                When LabId = '6';
+                    Attendee.Lab6 = 1;
+                When LabId = '7';
+                    Attendee.Lab7 = 1;
+                When LabId = '8';
+                    Attendee.Lab8 = 1;
+                When LabId = '9';
+                    Attendee.Lab9 = 1;
+            EndSl;
+
+            exec sql 
+                set transaction isolation level no commit;
+
+            exec sql 
+                Update attendee set Lab1 = :Attendee.Lab1,
+                                    Lab2 = :Attendee.Lab2,
+                                    Lab3 = :Attendee.Lab3,
+                                    Lab4 = :Attendee.Lab4,
+                                    Lab5 = :Attendee.Lab5,
+                                    Lab6 = :Attendee.Lab6,
+                                    Lab7 = :Attendee.Lab7,
+                                    Lab8 = :Attendee.Lab8,
+                                    Lab9 = :Attendee.Lab9
+                where ID = :Attendee.ID;
+        EndSr;
+
+
+
+
+            exec sql 
+                set transaction isolation level no commit;
+
+            exec sql 
+                Update attendee set Lab1 = :Labs(1),
+                                    Lab2 = :Labs(2),
+                                    Lab3 = :Labs(3),
+                                    Lab4 = :Labs(4),
+                                    Lab5 = :Labs(5),
+                                    Lab6 = :Labs(6),
+                                    Lab7 = :Labs(7),
+                                    Lab8 = :Labs(8),
+                                    Lab9 = :Labs(9) 
+                where ID = :Attendee.ID;
+
+
+
+        BegSr GetLabOp;
+            // Get lab ID's ordinal position in the list.
+            For i = 1 To MAX_ROWS;
+                If LabData(i).Id = %Dec(LabId:12:0);
+                    Nid = i;
+                EndIf;
+            EndFor;
+        EndSr;
+
+

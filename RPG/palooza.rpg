@@ -1,0 +1,507 @@
+     FPalooza   CF   E             WORKSTN Handler('MOBILERPG')
+     F                                     Sfile(LABSSFL:RRN)
+
+     D MAX_ROWS        C                    4
+     D LabData         DS                  Qualified Dim(MAX_ROWS)
+     D Id                            12S 0
+     D LabNam                        80A
+     D LabOrd                        12S 0
+     D Subhead                       80A
+     D TotSeats                      12S 0
+     D SeatsAv                       12S 0
+     D LabDesc                     2048A
+
+     D ATTENDEE        DS                  Qualified
+     D   Id                          12S 0
+     D   LName                       30A
+     D   FName                       30A
+     D   Company                     30A
+     D   Email                       75A
+     D   Lab1                        12S 0
+     D   Lab2                        12S 0
+     D   Lab3                        12S 0
+     D   Lab4                        12S 0
+     D   Lab5                        12S 0
+     D   Lab6                        12S 0
+     D   Lab7                        12S 0
+     D   Lab8                        12S 0
+     D   Lab9                        12S 0
+
+     D Labs            S             12S 0 Dim(9)
+     D RRN             S             12P 0
+     D NFORMAT         S             10A
+     D NID             S             12P 0
+     D i               S             10U 0
+     D RPTEST          S             10A
+     D DatChg          S               Z
+     D FullName        S             60A
+     D Company         S             30A
+     D LabState        S             12S 0
+     D RegState        S             12S 0
+     D CurrID          S             12S 0
+     D Seats           S             12S 0
+     D Worker          S           2048A
+
+      /free
+        NFormat = 'HOMEMENU';
+        ExSr ShowFmt;
+
+        DoW CAction <> 'END';
+            Select;
+                When CFORMAT = 'HOMEMENU';
+                    Select;
+                        When CAction = 'REGISTER';
+                            NFormat = 'REGISTER';
+                            ExSr ShowFmt;
+                        When CAction = 'RETURNING';
+                            NFormat = 'RETURNING';
+                            ExSr ShowFmt;
+                        Other;
+                            NFormat = 'REGISTER';
+                            ExSr ShowFmt;
+                    EndSl;
+
+                When CFORMAT = 'BADEMAIL';
+                    // 'BADEMAIL' is pseudo format! Code behind sets
+                    // it if a bad email address is entered.
+                    Select;
+                        When CAction = 'HOME';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                        When CAction = 'CANREG';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                       Other;
+                            NFormat = 'REGISTER';
+                            ErrorMsg = 'Please provide a valid email';
+                            ExSr ShowFmt;
+                    EndSl;
+
+                When CFORMAT = 'REGISTER';
+                    Select;
+                        When CAction = 'HOME';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                        When CAction = 'CANREG';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                        When CAction = 'REGATT';
+                            ExSr RegAtt;
+                            ExSr ShowFmt;
+                        Other;
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+
+                    EndSl;
+
+                When CFORMAT = 'SHOWLABS';
+                    // *In24 = lab row tapped.
+                    If (*IN24 = *ON);
+                        CAction = 'LABDTL';
+                    EndIf;
+
+                    Select;
+                        When CAction = 'HOME';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                        When CAction = 'LABDTL';
+                            ExSr ShowLabDtl;
+                        Other;
+                            CAction = *Blanks;
+                            NFormat = 'SHOWLABS';
+                            ExSr ShowFmt;
+
+                    EndSl;
+
+                When CFORMAT = 'LABDTL';
+                    Select;
+                        When CAction = 'SHOWLABS';
+                            NFormat = 'SHOWLABS';
+                            ExSr ShowFmt;
+                        When CAction = 'DOREG';
+                            ExSr RegLab;
+                            NFormat = 'SHOWLABS';
+                            ExSr ShowFmt;
+                        When CAction = 'DONOTREG';
+                            NFormat = 'SHOWLABS';
+                            ExSr ShowFmt;
+                        Other;
+                            NFormat = 'SHOWLABS';
+                            ExSr ShowFmt;
+
+                    EndSl;
+
+                When CFORMAT = 'RETURNING';
+                    Select;
+                        When CAction = 'HOME';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                        When CAction = 'RETURNINGATT';
+                            ExSr GetRetAtt;
+                            ExSr ShowFmt;
+                        When CAction = 'CANREG';
+                            NFormat = 'HOMEMENU';
+                            ExSr ShowFmt;
+                        Other;
+                            If (email <> *Blanks);
+                                ExSr GetRetAtt;
+                                ExSr ShowFmt;
+                            Else;
+                                NFormat = 'RETURNING';
+                                ExSr ShowFmt;
+                            EndIf;
+
+                    EndSl;
+
+            EndSl;
+        EndDo;
+
+        *INLR = *ON;
+        Return;
+
+        // End RPG mainline.
+
+        Begsr ShowLabDtl;
+            READC LabsSfl;
+
+            // Is registered for lab selected?
+            If Labs(%Dec(LabId:12:0)) = 1;
+                RegState = -1;
+                BtnTxt = 'Unregister for this lab';
+                NFormat = 'LABDTL';
+            Else;
+                ExSr ChkSeat;
+                If (Seats = 0);
+                    // Don't let em register!
+                    NFormat = 'SHOWLABS';
+                Else;
+                    RegState = 1;
+                    BtnTxt = 'Register for this lab';
+                    NFormat = 'LABDTL';
+                EndIf;
+            EndIf;
+            ExSr ShowFmt;
+        EndSr;
+
+        BegSr GetAttId;
+            // -------------------------------------------------------
+            // Get next ID value for Attendee file and put it
+            // in the Nid field.
+            // -------------------------------------------------------
+            exec sql
+                select id into :nid from rppallab/attendee order by
+                id desc fetch first 1 row only;
+            Nid = Nid + 1;
+        EndSr;
+
+        BegSr ReadAttendee;
+            // -------------------------------------------------------
+            // Read the current atttend row with the id in Nid.
+            // -------------------------------------------------------
+            // Reads from Nid value.
+            Nid = CurrID;
+            exec sql
+                select id,Lname,FName,Company,Email,
+                       Lab1,Lab2,Lab3,Lab4,Lab5,Lab6,
+                       Lab7,Lab8,Lab9 into :attendee from rppallab/Attendee
+                       where id = :Nid;
+
+            Labs(1) = Attendee.Lab1;
+            Labs(2) = Attendee.Lab2;
+            Labs(3) = Attendee.Lab3;
+            Labs(4) = Attendee.Lab4;
+            Labs(5) = Attendee.Lab5;
+            Labs(6) = Attendee.Lab6;
+            Labs(7) = Attendee.Lab7;
+            Labs(8) = Attendee.Lab8;
+            Labs(9) = Attendee.Lab9;
+        EndSr;
+
+        BegSr IsAttReg;
+            // -------------------------------------------------------
+            // Count number of attendees with given email
+            // address. Put the count in Nid.
+            // -------------------------------------------------------
+            // EmailUC = %XLate(LOWER : UPPER : email);
+            exec sql
+                select count(*) into :Nid from rppallab/attendee
+                       where email = UCase(:email);
+        EndSr;
+
+        BegSr GetIdByEmail;
+            // -------------------------------------------------------
+            // Get attendee ID by email address.
+            // -------------------------------------------------------
+            exec sql
+                select Id into :CurrId from rppallab/attendee
+                       where email = UCase(:email);
+        EndSr;
+
+        BegSr RegLab;
+            Nid = %Dec(LabId:12:0);
+            If (RegState = -1);
+                i = 0;
+            Else;
+                i = 1;
+            EndIf;
+
+            Labs(Nid) = i;
+
+            Attendee.Lab1 = Labs(1);
+            Attendee.Lab2 = Labs(2);
+            Attendee.Lab3 = Labs(3);
+            Attendee.Lab4 = Labs(4);
+            Attendee.Lab5 = Labs(5);
+            Attendee.Lab6 = Labs(6);
+            Attendee.Lab7 = Labs(7);
+            Attendee.Lab8 = Labs(8);
+            Attendee.Lab9 = Labs(9);
+
+            exec sql
+                set transaction isolation level no commit;
+
+            exec sql
+                Update attendee set Lab1 = :Attendee.Lab1,
+                                    Lab2 = :Attendee.Lab2,
+                                    Lab3 = :Attendee.Lab3,
+                                    Lab4 = :Attendee.Lab4,
+                                    Lab5 = :Attendee.Lab5,
+                                    Lab6 = :Attendee.Lab6,
+                                    Lab7 = :Attendee.Lab7,
+                                    Lab8 = :Attendee.Lab8,
+                                    Lab9 = :Attendee.Lab9
+                where ID = :Attendee.ID;
+
+            ExSr SubSeat;
+        EndSr;
+
+        BegSr SubSeat;
+            Nid = %Dec(LabId:12:0);
+
+            exec sql
+                select SeatsAv into :Seats from rppallab/lab
+                       where id = :Nid;
+
+            Seats = Seats - RegState;
+
+            exec sql
+                set transaction isolation level no commit;
+            exec sql
+                Update rppallab/lab Set SeatsAv = :Seats
+                       where id = :Nid;
+        EndSr;
+
+        BegSr ChkSeat;
+            Nid = %Dec(LabId:12:0);
+
+            exec sql
+                select SeatsAv into :Seats from rppallab/lab
+                       where id = :Nid;
+        EndSr;
+
+        BegSr RegAtt;
+            // -------------------------------------------------------
+            // Register an attendee.
+            // -------------------------------------------------------
+            ExSr ValAtt;
+            If (ErrorMsg <> *Blanks);
+                LeaveSr;
+            EndIf;
+
+            ExSr IsAttReg;
+            If ( Nid > 0 );
+                ErrorMsg = 'Email is already registered';
+                NFormat = 'REGISTER';
+                LeaveSr;
+            EndIf;
+
+            ExSr GetAttId;
+            DatChg = %TimeStamp();
+            exec sql
+                set transaction isolation level no commit;
+            exec sql
+                insert into rppallab/attendee(id,lname,fname,company,
+                                              email,lab1,lab2,lab3,
+                                              lab4,lab5,lab6,lab7,
+                                              lab8,lab9,datchg)
+                    values(:nid,:lname,:fname,:company,UCase(:email),
+                            0,0,0,0,0,0,0,0,0, :datchg);
+
+            CurrId = Nid;
+            NFormat = 'SHOWLABS';
+        EndSr;
+
+        BegSr GetRetAtt;
+            // -------------------------------------------------------
+            // Get returning attendee.
+            // -------------------------------------------------------
+            ExSr IsAttReg;
+            If (Nid <> 1);
+                ErrorMsg = 'Email isn''t registered';
+                NFormat = 'RETURNING';
+                LeaveSr;
+            EndIf;
+
+            ExSr GetIdByEmail;
+            NFormat = 'SHOWLABS';
+        EndSr;
+
+        BegSr ValAtt;
+            // -------------------------------------------------------
+            // Validate attendee registration input.
+            // -------------------------------------------------------
+            If LNAME = *BLANKS OR
+                FNAME = *BLANKS OR
+                COMPANY = *BLANKS OR
+                EMAIL = *BLANKS OR
+                EMAIL2 = *BLANKS;
+
+                NFormat = 'REGISTER';
+                ErrorMsg = 'Please provide all fields';
+                LeaveSr;
+            EndIf;
+
+            If EMAIL <> EMAIL2;
+                NFormat = 'REGISTER';
+                ErrorMsg = 'Emails don''t match.';
+                LeaveSr;
+            EndIf;
+        EndSr;
+
+        BegSr ShowFmt;
+            // -------------------------------------------------------
+            // Show a record format.
+            // -------------------------------------------------------
+            ExSr ClearState;
+            ExSr SetState;
+            Select;
+                When NFormat = 'REGISTER';
+                    ExFmt Register;
+
+                When NFormat = 'HOMEMENU';
+                    ExFmt HomeMenu;
+
+                When NFormat = 'SHOWLABS';
+                    ExSr ReadAttendee;
+                    FullName = %TRIM(Attendee.FName) +
+                              ' ' + %TRIM(Attendee.LName);
+                    Company = Attendee.Company;
+                    Email = Attendee.Email;
+                    ExSr GetLabList;
+                    ExSr LoadLabSbf;
+                    ExFmt ShowLabs;
+
+                When NFormat = 'LABDTL';
+                    ExSr GetLabIndex;
+                    LabDesc = LabData(Nid).LabDesc;
+                    ExFmt LabDtl;
+
+                When NFormat = 'RETURNING';
+                    ExFmt Returning;
+            EndSl;
+            ErrorMsg = *Blanks;
+        EndSr;
+
+        BegSr InitLabList;
+            For i = 1 to MAX_ROWS;
+                LabData(i).Id = -1;
+            EndFor;
+        EndSr;
+
+        BegSr GetLabIndex;
+            // Get lab ID's ordinal position in the list.
+            For i = 1 To MAX_ROWS;
+                If LabData(i).Id = %Dec(LabId:12:0);
+                    Nid = i;
+                EndIf;
+            EndFor;
+        EndSr;
+
+        BegSr GetLabList;
+            // -------------------------------------------------------
+            // Load lab list into LabData data structure.
+            // -------------------------------------------------------
+            Nid = MAX_ROWS;
+            exec sql
+                declare c1 scroll cursor for
+                select Id, LabNam, LabOrd, Subhead,TotSeats,SeatsAv,
+                Desc as LabDesc
+                    from Lab
+                    order by LabOrd
+                    for read only;
+            exec sql
+                open c1;
+
+            exec sql
+                fetch first from c1 for :Nid rows into :LabData;
+
+            exec sql close c1;
+        EndSr;
+
+        BegSr LoadLabSbf;
+            // -------------------------------------------------------
+            // Load lab list subfile from LabData data structure.
+            // -------------------------------------------------------
+            LabsOut = *Blanks;
+           *IN99 = *ON;
+           Write LabsSflc;
+           RRN = 0;
+           For i = 1 to MAX_ROWS;
+               RRN = RRN + 1;
+               If (LabData(RRN).Id <> -1);
+                   LabName = LabData(RRN).LabNam;
+                   LabId   = %CHAR(LabData(RRN).Id);
+                   Subhead = LabData(RRN).Subhead;
+                   LabSel = '0';
+                   If Labs(LabData(RRN).Id) = 1;
+                       IconID = 'circle';
+                       ExSr ExportLabList;
+                   Else;
+                       IconID = 'circle-blank';
+                   EndIf;
+                   If (LabData(RRN).SeatsAv = 0 AND
+                       IconId = 'circle-blank');
+                           IconID = 'lock';
+                           // 88 is supposed to condition the
+                           // display of a message
+                           // about full labs--but it isn't there
+                           // yet!
+                           *IN88 = *ON;
+                   EndIf;
+
+                   Write LabsSfl;
+             EndIf;
+           EndFor;
+           *IN99 = *OFF;
+           Write LabsSflc;
+        EndSr;
+
+        BegSr ExportLabList;
+            // -------------------------------------------------------
+            // Push a delimited list of labs through the server-side
+            // code for email use.
+            // -------------------------------------------------------
+            Worker = %Trim(LabId) + ',' +
+                     %Trim(LabName) + ',' +
+                     %Trim(Subhead) + ';';
+
+            LabsOut = %Trim(LabsOut) + %Trim(Worker);
+        EndSr;
+
+        BegSr ClearState;
+            // -------------------------------------------------------
+            // Clear all program state conditions.
+            // -------------------------------------------------------
+            For i = 1 To 99;
+                *In(i) = *Off;
+            EndFor;
+        EndSr;
+
+        BegSr SetState;
+            // -------------------------------------------------------
+            // Set state for record format display.
+            // -------------------------------------------------------
+            If (ErrorMsg <> *BLANKS);
+                *IN98 = *ON;
+            EndIf;
+        EndSr;

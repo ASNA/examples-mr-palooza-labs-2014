@@ -1,0 +1,21 @@
+IF (EXISTS (select * from qsys2/tables 
+            where table_schema = 'RPPALLAB' AND 
+            table_name = 'LAB'))
+BEGIN
+    DROP TABLE RPPALLAB/LAB; 
+DO;             
+
+
+INSERT INTO rppallab/lab (
+    ID,
+    Name,
+    Desc,
+    Order
+)
+
+Values (
+    2,
+    'Deploy ASP.NET',
+    'This is a description',
+    1
+);    
