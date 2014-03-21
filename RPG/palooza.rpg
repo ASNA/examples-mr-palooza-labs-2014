@@ -188,6 +188,14 @@
             // in the Nid field.
             // -------------------------------------------------------
             exec sql
+                select count(*) into :nid from rppallab/attendee;
+            
+            If Nid = 0; 
+                Nid = 1;
+                LeaveSr;
+            EndIf;    
+
+            exec sql
                 select id into :nid from rppallab/attendee order by
                 id desc fetch first 1 row only;
             Nid = Nid + 1;
@@ -255,8 +263,8 @@
             Attendee.Lab8 = Labs(8);
             Attendee.Lab9 = Labs(9);
 
-            exec sql
-                set transaction isolation level no commit;
+            //exec sql
+            //    set transaction isolation level no commit;
 
             exec sql
                 Update attendee set Lab1 = :Attendee.Lab1,
@@ -270,6 +278,9 @@
                                     Lab9 = :Attendee.Lab9
                 where ID = :Attendee.ID;
 
+            exec sql 
+                commit;
+
             ExSr SubSeat;
         EndSr;
 
@@ -282,11 +293,13 @@
 
             Seats = Seats - RegState;
 
-            exec sql
-                set transaction isolation level no commit;
+//            exec sql
+//                set transaction isolation level no commit;
             exec sql
                 Update rppallab/lab Set SeatsAv = :Seats
                        where id = :Nid;
+            exec sql 
+                commit;
         EndSr;
 
         BegSr ChkSeat;
@@ -315,8 +328,8 @@
 
             ExSr GetAttId;
             DatChg = %TimeStamp();
-            exec sql
-                set transaction isolation level no commit;
+//            exec sql
+//                set transaction isolation level no commit;
             exec sql
                 insert into rppallab/attendee(id,lname,fname,company,
                                               email,lab1,lab2,lab3,
@@ -324,6 +337,9 @@
                                               lab8,lab9,datchg)
                     values(:nid,:lname,:fname,:company,UCase(:email),
                             0,0,0,0,0,0,0,0,0, :datchg);
+
+            exec sql 
+                commit;
 
             CurrId = Nid;
             NFormat = 'SHOWLABS';
