@@ -68,12 +68,13 @@
 
 <p>To understand how the program manages this, take a look at the (substantially) abridged MR record format below.</p>
 
-<p>Each record format in the Palooza Lab registration program defines three things: 
-1. The CursorField attribute is defined as <code>CAction</code> in the record format description. 
-2. An input/output field named CAction is declared, as defined in the previous bullet. This is a none-display field. 
-3. An input-only field named CFormat is declared and its value set to the alias of its parent record format. This is a non-display field. </p>
+<p>Each record format in the Palooza Lab registration program defines three things: </p>
 
-<p>All DdsButtons in the app assign a value to the <code>FieldName</code> property. This value specifies an action that the RPG program should perform when the button is tapped. This property is designed to work with the <code>CAction</code> field to tell the RPG the field name containing the name of the field where the cursor was located when the record format was returned to the RPG program. </p>
+<ol>
+<li>The CursorField attribute is defined as <code>CAction</code> in the record format description. </li>
+<li>An input/output field named CAction is declared, as defined in the previous bullet. This is a none-display field. </li>
+<li>An input-only field named CFormat is declared and its value set to the alias of its parent record format. This is a non-display field. </li>
+</ol><p>All DdsButtons in the app assign a value to the <code>FieldName</code> property. This value specifies an action that the RPG program should perform when the button is tapped. This property is designed to work with the <code>CAction</code> field to tell the RPG the field name containing the name of the field where the cursor was located when the record format was returned to the RPG program. </p>
 
 <p>With a little trial and error, though, I learned that that <code>FieldName</code> property is really a little more powerful that it first seems. When a DDsButton defines a <code>FieldName</code> value, that property's value is returned to the RPG program in the <code>CAction</code> field. The program isn't using this value for anything to do with field names! Rather, it it is using to know what action was requested. In the case of the buttons below, one requests a <code>REGISTER</code> action, and one requests a <code>RETURNING</code> action, and one requests an <code>END</code> action.     </p>
 
