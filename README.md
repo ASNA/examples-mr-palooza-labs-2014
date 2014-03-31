@@ -10,9 +10,9 @@ The ASNApalooza Lab Registration app was written with ASNA Mobile RPG and ILE RP
 
 It serves as a testbed for a few concepts and ideas I've been working on with Mobile RPG and ILE RPG, including: 
   
-* Each record format uses a protected, input-only field to indicate to the RPG program what record was most recently read.  
-* Each record format uses the CursorField property to associate an "action" field with this record format. MR's input controls populate this value with their' FieldName. These two fields provide an alternative to using function keys and response indicators to determine application action. More on this technique below.
-* It uses embedded SQL exclusively in the RPG program. I chose this mostly because I wanted to create a quick environment for [creating database migrations](http://rails-guides.joefiorini.com/migrations.html) (a concept I first used several years ago with Ruby on Rails). Make no mistake, this is a poor man's database migration scheme at best, but it did save me time and trouble.
+  * Each record format uses a protected, input-only field to indicate to the RPG program what record was most recently read.  
+  * Each record format uses the CursorField property to associate an "action" field with this record format. MR's input controls populate this value with their' FieldName. These two fields provide an alternative to using function keys and response indicators to determine application action. More on this technique below.
+  * It uses embedded SQL exclusively in the RPG program. I chose this mostly because I wanted to create a quick environment for [creating database migrations](http://rails-guides.joefiorini.com/migrations.html) (a concept I first used several years ago with Ruby on Rails). Make no mistake, this is a poor man's database migration scheme at best, but it did save me time and trouble.
 
 Here are the six record formats the lab registration program uses:
 
@@ -35,9 +35,9 @@ This program uses some interesting conventions to control program flow. My goal 
 To understand how the program manages this, take a look at the (substantially) abridged MR record format below.
 
 Each record format in the Palooza Lab registration program defines three things: 
-1. The CursorField attribute is defined as `CAction` in the record format description. 
-2. An input/output field named CAction is declared, as defined in the previous bullet. This is a none-display field. 
-3. An input-only field named CFormat is declared and its value set to the alias of its parent record format. This is a non-display field. 
+  1. The CursorField attribute is defined as `CAction` in the record format description. 
+  2. An input/output field named CAction is declared, as defined in the previous bullet. This is a none-display field. 
+  3. An input-only field named CFormat is declared and its value set to the alias of its parent record format. This is a non-display field. 
 
 All DdsButtons in the app assign a value to the `FieldName` property. This value specifies an action that the RPG program should perform when the button is tapped. This property is designed to work with the `CAction` field to tell the RPG the field name containing the name of the field where the cursor was located when the record format was returned to the RPG program. 
 
