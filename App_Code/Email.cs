@@ -35,7 +35,7 @@ namespace EmailManager
             myMessage.Subject = "Your ASNApalooza lab registration has been received"; 
             myMessage.IsBodyHtml = true;
 
-            emailTemplateBody.Replace("{{FullName}}", toName);
+            emailTemplateBody.Replace("{{FullName}}", toName.Trim());
             emailTemplateBody.Replace("{{Labs}}", GetLabUnOrderedList(labList));
             myMessage.Body = emailTemplateBody.ToString();
                 
