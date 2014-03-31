@@ -31,37 +31,104 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <h2>
+<a name="asnapalooza-lab-registration-mobile-rpg-app" class="anchor" href="#asnapalooza-lab-registration-mobile-rpg-app"><span class="octicon octicon-link"></span></a>ASNApalooza Lab Registration Mobile RPG app</h2>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<blockquote>
+<p>This document is in progress!</p>
+</blockquote>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p>The ASNApalooza Lab Registration app was written with ASNA Mobile RPG and ILE RPG. </p>
+
+<p>It serves as a testbed for a few concepts and ideas I've been working on with Mobile RPG and ILE RPG, including: </p>
+
+<ul>
+<li>Each record format uses a protected, input-only field to indicate to the RPG program what record was most recently read.<br>
+</li>
+<li>Each record format uses the CursorField property to associate an "action" field with this record format. MR's input controls populate this value with their' FieldName. These two fields provide an alternative to using function keys and response indicators to determine application action. More on this technique below.</li>
+<li>It uses embedded SQL exclusively in the RPG program. I chose this mostly because I wanted to create a quick environment for <a href="http://rails-guides.joefiorini.com/migrations.html">creating database migrations</a> (a concept I first used several years ago with Ruby on Rails). Make no mistake, this is a poor man's database migration scheme at best, but it did save me time and trouble.</li>
+</ul><p>Here are the six record formats the lab registration program uses:</p>
+
+<p><img src="http://i.imgur.com/tEYt6Nb.png" alt=""></p>
+
+<p><img src="http://i.imgur.com/BZ5S70i.png" alt=""></p>
+
+<p><img src="http://i.imgur.com/HEhv9HC.png" alt=""></p>
+
+<p><img src="http://i.imgur.com/zdYa5HD.png" alt=""></p>
+
+<p><img src="http://i.imgur.com/uKgbM7z.png" alt=""></p>
+
+<p><img src="http://i.imgur.com/3CThK00.png" alt=""></p>
+
+<h3>
+<a name="function-keys-be-gone" class="anchor" href="#function-keys-be-gone"><span class="octicon octicon-link"></span></a>Function keys be gone!</h3>
+
+<p>This program uses some interesting conventions to control program flow. My goal was to be able to write the program logic linking the UI to the RPG program without any function keys, response indicators, or using the INFDS. </p>
+
+<p>To understand how the program manages this, take a look at the (substantially) abridged MR record format below.</p>
+
+<p>Each record format in the Palooza Lab registration program defines three things: 
+1. The CursorField attribute is defined as <code>CAction</code> in the record format description. 
+2. An input/output field named CAction is declared, as defined in the previous bullet. This is a none-display field. 
+3. An input-only field named CFormat is declared and its value set to the alias of its parent record format. This is a non-display field. </p>
+
+<p>All DdsButtons in the app assign a value to the <code>FieldName</code> property. This value specifies an action that the RPG program should perform when the button is tapped. This property is designed to work with the <code>CAction</code> field to tell the RPG the field name containing the name of the field where the cursor was located when the record format was returned to the RPG program. </p>
+
+<p>With a little trial and error, though, I learned that that <code>FieldName</code> property is really a little more powerful that it first seems. When a DDsButton defines a <code>FieldName</code> value, that property's value is returned to the RPG program in the <code>CAction</code> field. The program isn't using this value for anything to do with field names! Rather, it it is using to know what action was requested. In the case of the buttons below, one requests a <code>REGISTER</code> action, and one requests a <code>RETURNING</code> action, and one requests an <code>END</code> action.     </p>
+
+<p>Note also that all of the buttons are associated with the F3 <code>AidKey</code>. All of the buttons in the program are associated with F3! That's because they each need an <code>AidKey</code> to report input to the RPG program, but I don't care which key was pressed. The program uses the <code>CAction</code> field to see what action is required.</p>
+
+<p>Remember that the <code>FieldName</code> property, in this case, isn't a field name! It's the name of an action to perform. You'll notice that I've defined the <code>CAction</code> field as being 32 characters long. This means the <code>FieldName</code> property can be long enough to be meaningful. When I first started doing this, I assumed the RPG/Display file model wouldn't allow a very long field name. Turns out, they don't care! Use a long action name!  </p>
+
+<pre><code>&lt;mdf:DdsRecord Alias="HOMEMENU" FuncKeys="F3 03;" CursorField="CAction" &gt;
+    &lt;mdf:DdsCharField Alias="CAction"
+        DefaultValue=""
+        Length="32"
+        Usage="Both"
+        VisibleCondition="*False" /&gt;
+
+    &lt;mdf:DdsCharField Alias="CFormat"
+        DefaultValue="HOMEMENU"
+        Length="10"
+        Protect="*True"
+        Usage="InputOnly"
+        VisibleCondition="*False" /&gt;
+
+    &lt;mdf:DdsButton AidKey="F3" Text="New Registration" FieldName="REGISTER" /&gt;
+    &lt;mdf:DdsButton AidKey="F3" Text="Registered - Show Labs" FieldName="RETURNING"/&gt;
+    &lt;mdf:DdsButton AidKey="F3" Text="End" FieldName="END"/&gt;
+&lt;/mdf:DdsRecord&gt;    
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>These fields allow the RPG program to easily determine what record format was just read (<code>CFormat</code>) and what action was requested (<code>CAction</code>) for that format. Notice that the F3 function is simply ignored! The program doesn't need to know, nor does it care, what function key was pressed.  </p>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<pre><code>// Show the first panel.
+ExFmt HomeMenu
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+DoW CAction &lt;&gt; 'END';
+  Select;
+    When CFormat = 'HOMEMENU';
+      Select;
+        When CAction = 'REGISTER';
+          // Do logic for 'REGISTER' action.
+        When CAction = 'RETURNING';
+         // Do Logic for 'RETURNING' action.
+      EndSl;
+  EndSl;            
+EndDo;
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+*INLR = *On;
+Return;
+</code></pre>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>When you look at the production, you'll notice that's program logic select statement is much larger; however is it doing exactly what the simple example shows above. </p>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<p>My goal was to write the logic linking the UI to the RPG program without any function keys, response indicators, or using the INFDS. I succeeded everywhere but with buttons inside subfiles. There, you'll notice as you're reading the programs real code I did have to resort to using a response indicator.</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<blockquote>
+<p>To be continued </p>
+</blockquote>
       </section>
     </div>
 
