@@ -8,11 +8,14 @@ ASNApalooza Lab Registration Mobile RPG app
 
 The ASNApalooza Lab Registration app was written with ASNA Mobile RPG and ILE RPG. 
 
-It serves as a testbed for a few concepts and ideas I've been working on with Mobile RPG and ILE RPG, including: 
-  
-  * Each record format uses a protected, input-only field to indicate to the RPG program what record was most recently read.  
-  * Each record format uses the CursorField property to associate an "action" field with this record format. MR's input controls populate this value with their' FieldName. These two fields provide an alternative to using function keys and response indicators to determine application action. More on this technique below.
+It serves as a testbed for a few concepts and ideas I've been working on with Mobile RPG and ILE RPG. Some of its techniques include:
+
+    
+  * It shows a way to manage RPG/display file logic without using function keys, response indicators, or the INFDS.  
   * It uses embedded SQL exclusively in the RPG program. I chose this mostly because I wanted to create a quick environment for [creating database migrations](http://rails-guides.joefiorini.com/migrations.html) (a concept I first used several years ago with Ruby on Rails). Make no mistake, this is a poor man's database migration scheme at best, but it did save me time and trouble.
+  * How to send an email with a Mobile RPG app from the ASP.NET presentation layer.
+  * How to validate an email address in the presentation-layer code behind and pass the results of that validation on to the RPG program.
+  * How to collect values from the RPG program into session variables for later use by the presentation layer code behind (in this case, email contents). 
 
 Here are the six record formats the lab registration program uses:
 
