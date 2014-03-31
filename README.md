@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ASNApalooza Lab Registration Mobile RPG app
 ---
 
@@ -89,9 +88,8 @@ These fields allow the RPG program to easily determine what record format was ju
 
 When you look at the production, you'll notice that's program logic select statement is much larger; however is it doing exactly what the simple example shows above. 
 
-My goal was to write the logic linking the UI to the RPG program without any function keys, response indicators, or using the INFDS. I succeeded everywhere but with buttons inside subfiles. There, you'll notice as you're reading the programs real code I did have to resort to using a response indicator. 
-=======
-###ASNApalooza 2014 lab registration###
+My goal was to write the logic linking the UI to the RPG program without any function keys, response indicators, or using the INFDS. I succeeded everywhere but with buttons inside subfiles. There, you'll notice as you're reading the programs real code I did have to resort to using a response indicator.
 
-README documentation needed.
->>>>>>> 5c73b52304343b5bfecdfa8e1744a6097f928c2f
+
+
+> To be continued 
